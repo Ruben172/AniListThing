@@ -1,4 +1,5 @@
 import httpx
+import time
 
 al_url = "https://graphql.anilist.co"
 al_query = '''
@@ -30,6 +31,9 @@ def request_with_retries(method: str, url: str, json: dict, headers: dict, max_a
     res = httpx.request(method=method, url=url, json=json, headers=headers)
     attempts = 1
     while res.status_code != 200:
+        if res.status_code == 429:
+            print("Rate limited, sleeping for 60 seconds...")
+            time.sleep(60)
         print(f"Retrying {url} (Received {res.status_code})")
         res = httpx.request(method=method, url=url, json=json, headers=headers)
         attempts += 1
